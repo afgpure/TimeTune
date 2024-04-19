@@ -78,7 +78,7 @@ body, html {
 }
 .send-button {
     width: 40px;
-    height: 40px;
+    height: 43px; /* 73 for full */
     background-color: #007bff;
     color: white;
     border: none;
