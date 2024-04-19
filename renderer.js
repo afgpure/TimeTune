@@ -13,7 +13,7 @@ function openTab(tabName) {
     document.getElementById(tabName).style.display = "block";
 }
 
-// default to open chat tab
+// Default to open chat tab
 document.addEventListener('DOMContentLoaded', function () {
     openTab('chat');
 });
@@ -26,7 +26,7 @@ function sendChat() {
     if (!prompt.trim()) return; // prevent sending empty prompts
 
     window.electron.sendChat(prompt).then((response) => {
-        
+    
         const messageHtml = `
           <div class="message user-message">${prompt}</div>
           <div class="message gpt-response">${response}</div>
@@ -52,9 +52,9 @@ function buildCalendar() {
 
     const calendarTable = document.getElementById('calendarTable');
     const calendarBody = calendarTable.querySelector('tbody');
-    calendarBody.innerHTML = ''; // clear existing calendar days
+    calendarBody.innerHTML = ''; // Clear existing calendar days
 
-    let row = calendarBody.insertRow(); // insert a new row for the first week
+    let row = calendarBody.insertRow(); // Insert a new row for the first week
     let dayCount = 1;
 
     // insert blank cells for days before the first day of the month
@@ -62,7 +62,7 @@ function buildCalendar() {
         row.insertCell();
     }
 
-    // populate calendar days
+    // Populate calendar days
     for (let day = 1; day <= daysInMonth; day++) {
         const cell = row.insertCell();
         cell.textContent = day;
@@ -81,6 +81,7 @@ function buildCalendar() {
         dayCount++;
     }
 }
+
 
 document.addEventListener('DOMContentLoaded', function () {
     buildCalendar();
