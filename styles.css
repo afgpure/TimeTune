@@ -45,27 +45,26 @@ body, html {
     display: block;
 }
 
-/* New styles for chat input */
 .chat-container {
     display: flex;
-    align-items: center; /* Centers the input and button vertically */
-    justify-content: space-between; /* Adds space between the input and button */
-    margin-top: 10px; /* Space between the chat output and the input area */
+    align-items: center; 
+    justify-content: space-between; 
+    margin-top: 10px; 
 }
 
 .chat-input {
-    flex-grow: 1; /* Allows input to take up available space */
+    flex-grow: 1; 
     height: 50px;
     padding: 10px;
-    margin-right: 10px; /* Space between the input and the send button */
+    margin-right: 10px; /* space between the input and the send button */
     font-size: 16px;
     border: 2px solid #ccc;
-    resize: none; /* Prevents the textarea from being resized */
+    resize: none; /* prevents the textarea from being resized */
 }
 .chat-output {
     display: flex;
     flex-direction: column;
-    height: 300px; /* Adjust height as needed */
+    height: 300px; 
     overflow-y: auto; /* Allows scrolling */
     background-color: #f4f4f8;
     border: 1px solid #ddd;
@@ -74,7 +73,7 @@ body, html {
 }
 .input-row {
     display: flex;
-    align-items: center; /* Align text area and button vertically */
+    align-items: center; 
 }
 .send-button {
     width: 40px;
@@ -94,16 +93,16 @@ body, html {
     padding: 5px 10px;
     border-radius: 5px;
     margin: 5px;
-    max-width: 80%; /* Limits maximum width of a message */
+    max-width: 80%; 
 }
 
 .user-message {
-    background-color: #dcf8c6; /* Light green background for user messages */
-    align-self: flex-end; /* Aligns user messages to the right */
-    text-align: right; /* Aligns text to the right */
+    background-color: #dcf8c6; 
+    align-self: flex-end; 
+    text-align: right; 
 }
 
 .gpt-response {
-    background-color: #e5e5ea; /* Light grey background for ChatGPT messages */
-    align-self: flex-start; /* Aligns ChatGPT messages to the left */
+    background-color: #e5e5ea; 
+    align-self: flex-start; 
 }
