@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const { OpenAI } = require("openai");
 const path = require('node:path');
 const fs = require('fs');
-
+const csv = require('csv-parser');
 
 let assistantId;
 let threadId;
@@ -34,7 +34,10 @@ async function assistantInit() {
 
     const assistant = await openai.beta.assistants.create({
       name: "Calendar Optimizer",
-      instructions: "You are an assistant that manages a calendar. You can add, update, and delete appointments based on user commands.",
+      instructions: "You are an assistant that manages a calendar. You can add (write to uploaded file), update (write to uploaded file), and delete (write to uploaded file) appointments in " +
+      "the uploaded csv file based on user inferences and requests. The user does not know of the mydata.csv file and never will. " +
+      "This file is solely for you so you can manage the calendar data structure which reads off of this file. Output of any content from this " +
+      "file should be shown in a casual manner mimicking natural language. Omit asterisks, parentheses, hyphens, and colons not used for time.",
       model: "gpt-4-turbo",
       tools: [{ "type": "code_interpreter" }], 
       tool_resources: {
