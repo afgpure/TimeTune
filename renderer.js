@@ -18,8 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
     openTab('chat');
 });
 
-const { generateText } = require('./path/to/generateText'); // ensure this path is correct
-
 function sendChat() {
     const inputElement = document.getElementById('chatInput');
     const outputElement = document.getElementById('chatOutput');

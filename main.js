@@ -1,7 +1,9 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { OpenAI } = require("openai");
 const path = require('node:path');
-const { parseChatGPTResponse } = require('./parseResponse');
+
+let assistantId;
+let threadId;
 
 const openai = new OpenAI({
   apiKey: 'REMOVED',
@@ -21,55 +23,69 @@ function createWindow() {
   win.loadFile('index.html')
 }
 
+async function assistantInit() {
+  try {
+    const assistant = await openai.beta.assistants.create({
+      name: "Calendar Optimizer",
+      instructions: "You are an assistant embedded into a calendar app with the purpose of managing and scheduling appointments. Add, delete, or modify them.",
+      tools: [{ type: "code_interpreter" }], // Assuming file_search tool is required
+      model: "gpt-4-turbo"
+    });
+    assistantId = assistant.id;
+
+    const thread = await openai.beta.threads.create();
+    threadId = thread.id;
+  } catch (error) {
+    console.error('Error initializing assistant or thread:', error);
+  }
+}
+
 async function fetchChatCompletion(prompt) {
   try {
-    const response = await openai.chat.completions.create({
-      messages: [{ role: 'user', content: prompt }],
-      model: 'gpt-3.5-turbo',
-    });
+    // First, create a message in the thread
+    const threadMessage = await openai.beta.threads.messages.create(
+      threadId,
+      { role: 'user', content: prompt }
+    );
 
-    const parsedEvent = parsePlainTextResponse(response.choices[0].message.content);
+    // Then, create and poll a run to generate a response
+    const run = await openai.beta.threads.runs.createAndPoll(
+      threadId,
+      { assistant_id: assistantId }
+    );
 
-    // Create calendar event based on parsed event details
-    createCalendarEvent(parsedEvent);
+    if (run.status === 'completed') {
+      console.log(`Run ${run.status}.\n`);
+    } else if (run.status === 'failed') {
+      console.log(`Run ${run.status}.\n`);
+    } else if (run.status === 'queued') {
+      console.log(`Run ${run.status}.\n`);
+      await new Promise(resolve => setTimeout(resolve, 20000)); // Sleep for 20 seconds
+    } 
 
-    return response.choices[0].message.content;
+    // After the run completes, list messages added to the thread by the Assistant
+    if (run.status === 'completed') {
+      const messages = await openai.beta.threads.messages.list(run.thread_id);
+      const assistantMessages = messages.data
+        .filter(message => message.role === 'assistant')
+        .map(message => {
+          // Make sure to safely access nested properties
+          if (message.content && message.content.length > 0 && message.content[0].text) {
+            return message.content[0].text.value;
+          }
+          return "No valid content found";  // Fallback text
+        });
+
+      // Since messages are reversed, the first assistant message is the latest one
+      const latestAssistantMessage = assistantMessages.length > 0 ? assistantMessages[0] : "No assistant messages found";
+
+      return latestAssistantMessage; // Return the latest message content
+    } else {
+      return `Assistant could not generate a response: ${run.status}`;
+    }
   } catch (error) {
     console.error('Error fetching chat completion:', error);
     throw error;
-  }
-}
-
-function parsePlainTextResponse(responseText) {
-  // Define delimiters and expected order of event details
-  const delimiters = [',', ';', '|']; // Add more delimiters as needed
-  const expectedOrder = ['name', 'date', 'time', 'location', 'description'];
-
-  // Split the response into individual components based on delimiters
-  let eventDetails = responseText.split(new RegExp(delimiters.join('|'), 'g'));
-
-  // Initialize an object to store parsed event details
-  let parsedEvent = {};
-
-  // Iterate over the expected order of event details
-  for (let i = 0; i < expectedOrder.length; i++) {
-    // Trim whitespace from each component and assign it to the corresponding property in the parsedEvent object
-    parsedEvent[expectedOrder[i]] = eventDetails[i] ? eventDetails[i].trim() : ''; // Handle cases where a detail might be missing
-  }
-
-  return parsedEvent;
-}
-
-// Function to create calendar events
-function createCalendarEvent(eventDetails) {
-  // Log the event details to the console for testing
-  console.log("Calendar Event Details:");
-  console.log(eventDetails);
-
-  // Alternatively, display the event details in the Electron app's window
-  const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    win.webContents.send('display-event-details', eventDetails);
   }
 }
 
@@ -79,7 +95,9 @@ ipcMain.handle('get-chat-completion', async (event, prompt) => {
 
 
 app.whenReady().then(() => {
+  
   createWindow()
+  assistantInit()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
