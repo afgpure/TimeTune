@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { OpenAI } = require("openai");
 const path = require('node:path');
+const fs = require('fs');
+
 
 let assistantId;
 let threadId;
@@ -25,11 +27,22 @@ function createWindow() {
 
 async function assistantInit() {
   try {
+    const file = await openai.files.create({
+      file: fs.createReadStream("mydata.csv"),
+      purpose: "assistants",
+    });
+
     const assistant = await openai.beta.assistants.create({
       name: "Calendar Optimizer",
-      instructions: "You are an assistant embedded into a calendar app with the purpose of managing and scheduling appointments. Add, delete, or modify them.",
-      tools: [{ type: "code_interpreter" }], // Assuming file_search tool is required
-      model: "gpt-4-turbo"
+      instructions: "You are an assistant that manages a calendar. You can add, update, and delete appointments based on user commands.",
+      model: "gpt-4-turbo",
+      tools: [{ "type": "code_interpreter" }], 
+      tool_resources: {
+        "code_interpreter": {
+          "file_ids": [file.id]
+        }
+      }
+      
     });
     assistantId = assistant.id;
 
