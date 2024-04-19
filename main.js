@@ -4,6 +4,7 @@ const path = require('node:path');
 const fs = require('fs');
 const csv = require('csv-parser');
 
+
 let assistantId;
 let threadId;
 
