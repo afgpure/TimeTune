@@ -59,13 +59,13 @@ async function assistantInit() {
 
 async function fetchChatCompletion(prompt) {
   try {
-    // First, create a message in the thread
+    //create a message in the thread
     const threadMessage = await openai.beta.threads.messages.create(
       threadId,
       { role: 'user', content: prompt }
     );
 
-    // Then, create and poll a run to generate a response
+    //create and poll a run to generate a response
     const run = await openai.beta.threads.runs.createAndPoll(
       threadId,
       { assistant_id: assistantId }
@@ -80,20 +80,20 @@ async function fetchChatCompletion(prompt) {
       await new Promise(resolve => setTimeout(resolve, 20000)); // Sleep for 20 seconds
     } 
 
-    // After the run completes, list messages added to the thread by the Assistant
+    // list messages added to the thread by the Assistant
     if (run.status === 'completed') {
       const messages = await openai.beta.threads.messages.list(run.thread_id);
       const assistantMessages = messages.data
         .filter(message => message.role === 'assistant')
         .map(message => {
-          // Make sure to safely access nested properties
+          
           if (message.content && message.content.length > 0 && message.content[0].text) {
             return message.content[0].text.value;
           }
           return "No valid content found";  // Fallback text
         });
 
-      // Since messages are reversed, the first assistant message is the latest one
+      // since messages are reversed the first assistant message is the latest one
       const latestAssistantMessage = assistantMessages.length > 0 ? assistantMessages[0] : "No assistant messages found";
 
       return latestAssistantMessage; // Return the latest message content
