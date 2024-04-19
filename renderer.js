@@ -14,38 +14,78 @@ function openTab(tabName) {
 }
 
 // Default to open chat tab
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     openTab('chat');
 });
 
 const { generateText } = require('./path/to/generateText'); // ensure this path is correct
 
 function sendChat() {
-    const prompt = document.getElementById('chatInput').value;
-    if (!prompt.trim()) return; // Don't send empty prompts
-    
+    const inputElement = document.getElementById('chatInput');
+    const outputElement = document.getElementById('chatOutput');
+    const prompt = inputElement.value;
+    inputElement.value = '';  // Clear input after sending
+    if (!prompt.trim()) return; // Prevent sending empty prompts
+
     window.electron.sendChat(prompt).then((response) => {
-      // Process the successful response from your main process
-      const outputElement = document.getElementById('chatOutput');
-      outputElement.innerHTML += `<div>AI: ${response}</div>`;
+        // Added 'user-message' class for the user messages
+        // and 'gpt-response' class for ChatGPT's messages
+        const messageHtml = `
+          <div class="message user-message">${prompt}</div>
+          <div class="message gpt-response">${response}</div>
+        `;
+        outputElement.innerHTML += messageHtml;  // Append new messages
+        outputElement.scrollTop = outputElement.scrollHeight;  // Scroll to the bottom
     }).catch((error) => {
-      // Handle any errors that occur during the IPC communication
-      console.error('Error sending chat message:', error);
+        console.error('Error sending chat message:', error);
+        outputElement.innerHTML += `<div class="message error-message">Error: Could not fetch response.</div>`;
     });
-  }
-  window.sendChat = sendChat;
+}
+window.sendChat = sendChat;
 
 function buildCalendar() {
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-    const date = new Date();
-    const month = date.getMonth();
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
 
-    document.getElementById("calendarView").innerHTML = `<h3>${monthNames[month]} ${date.getFullYear()}</h3>`;
-    // Here, add more sophisticated calendar generation logic as needed
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+    const daysInMonth = lastDayOfMonth.getDate();
+    const startingDayOfWeek = firstDayOfMonth.getDay(); // Sunday is 0, Monday is 1, ..., Saturday is 6
+
+    const calendarTable = document.getElementById('calendarTable');
+    const calendarBody = calendarTable.querySelector('tbody');
+    calendarBody.innerHTML = ''; // Clear existing calendar days
+
+    let row = calendarBody.insertRow(); // Insert a new row for the first week
+    let dayCount = 1;
+
+    // Insert blank cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+        row.insertCell();
+    }
+
+    // Populate calendar days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const cell = row.insertCell();
+        cell.textContent = day;
+        dayCount++;
+
+        // Start a new row if it's the end of the week
+        if (dayCount > 7) {
+            row = calendarBody.insertRow();
+            dayCount = 1;
+        }
+    }
+
+    // Fill in remaining empty cells in the last row
+    while (dayCount <= 7) {
+        row.insertCell();
+        dayCount++;
+    }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+// Example usage to build the calendar for the current month
+document.addEventListener('DOMContentLoaded', function () {
     buildCalendar();
 });
