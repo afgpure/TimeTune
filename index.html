@@ -17,18 +17,36 @@
         <div class="content">
             <div id="chat" class="tab-content">
                 <h2>Chat with GPT-3</h2>
-                <textarea id="chatInput" placeholder="Ask me anything..."></textarea>
-                <button onclick="window.sendChat()">Send</button>
-                <div id="chatOutput"></div>
+                <div id="chatOutput" class="chat-output"></div> <!-- Messaging history is now above the input area -->
+                <div class="chat-container"> <!-- Container for input and send button -->
+                    <textarea id="chatInput" class="chat-input" placeholder="Type your message here..."></textarea>
+                    <button onclick="window.sendChat()" class="send-button">&#9650;</button>
+                </div>
             </div>
             <div id="calendar" class="tab-content">
                 <h2>Calendar</h2>
-                <div id="calendarView"></div>
+                <div id="calendarView">
+                    <table id="calendarTable">
+                        <thead>
+                            <tr>
+                                <th>Sun</th>
+                                <th>Mon</th>
+                                <th>Tue</th>
+                                <th>Wed</th>
+                                <th>Thu</th>
+                                <th>Fri</th>
+                                <th>Sat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Calendar days will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
     <script src="renderer.js"></script>
-
 </body>
 
 </html>
