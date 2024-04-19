@@ -25,25 +25,27 @@
             </div>
             <div id="calendar" class="tab-content">
                 <h2>Calendar</h2>
+                <button id="prevWeek">Previous Week</button>
+                <button id="nextWeek">Next Week</button>
                 <div id="calendarView">
-                    <table id="calendarTable">
-                        <thead>
-                            <tr>
-                                <th>Sun</th>
-                                <th>Mon</th>
-                                <th>Tue</th>
-                                <th>Wed</th>
-                                <th>Thu</th>
-                                <th>Fri</th>
-                                <th>Sat</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Calendar days will be populated here -->
-                        </tbody>
-                    </table>
+                  <table id="calendarTable">
+                    <thead>
+                      <tr>
+                        <th>Sun</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Calendar days will be dynamically populated -->
+                    </tbody>
+                  </table>
                 </div>
-            </div>
+              </div>
         </div>
     </div>
     <script src="renderer.js"></script>
