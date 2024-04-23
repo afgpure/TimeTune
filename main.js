@@ -134,9 +134,6 @@ async function readCSVandSendData() {
   }
 }
 
-
-
-
 app.whenReady().then(() => {
 
   createWindow()

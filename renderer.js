@@ -27,10 +27,10 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM fully loaded and parsed');
     openTab('chat');
     console.log('Renderer ready, setting up IPC listener for calendar-data');
-    window.electron.onCalendarData((events) => {
-        console.log('Received calendar data from main process:', events);
+    window.electron.onCalendarData((data) => {
+        console.log('Received calendar data from main process:', data);
         generateCalendar();
-        populateCalendar(events);
+        populateCalendar(data);
     });
 });
 console.log('Script executed');
@@ -58,14 +58,18 @@ function sendChat() {
 window.sendChat = sendChat;
 
 function populateCalendar(events) {
-    console.log('Populating calendar with events:', events);  // Check data structure here
+    if (!Array.isArray(events)) {
+        console.error('Expected events to be an array, but received:', events);
+        return; // Exit the function if not an array
+    }
+    console.log('Populating calendar with events:', events);
     events.forEach(event => {
         const { Date: date, Time: time, Description: description } = event;
         const textarea = document.querySelector(`textarea[data-date="${date}"]`);
         if (textarea) {
             textarea.value += `${time}: ${description}\n`;
         } else {
-            console.log(`No textarea found for date: ${date}`);  // This will help identify missing elements
+            console.log(`No textarea found for date: ${date}`);
         }
     });
 }
