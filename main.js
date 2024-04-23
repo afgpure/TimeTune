@@ -60,16 +60,16 @@ async function assistantInit() {
 
 async function fetchChatCompletion(prompt) {
   try {
-    // create a message in the thread
+    
     const threadMessage = await openai.beta.threads.messages.create(
       threadId,
       { role: 'user', content: prompt }
     );
 
-    // create and poll a run to generate a response
     const run = await openai.beta.threads.runs.createAndPoll(
       threadId,
       { assistant_id: assistantId }
+      //create and poll a run to generate a response
     );
 
     if (run.status === 'completed') {
@@ -78,10 +78,10 @@ async function fetchChatCompletion(prompt) {
       console.log(`Run ${run.status}.\n`);
     } else if (run.status === 'queued') {
       console.log(`Run ${run.status}.\n`);
-      await new Promise(resolve => setTimeout(resolve, 20000)); // Sleep for 20 seconds
+      await new Promise(resolve => setTimeout(resolve, 20000)); //sleep for 20 seconds
     } 
 
-    // list messages added to the thread by the Assistant
+    //list messages added to the thread by the Assistant
     if (run.status === 'completed') {
       const messages = await openai.beta.threads.messages.list(run.thread_id);
       const assistantMessages = messages.data
@@ -94,10 +94,10 @@ async function fetchChatCompletion(prompt) {
           return "No valid content found";  // Fallback text
         });
 
-      // first assistant message is the latest one
+      //first assistant message is the latest one
       const latestAssistantMessage = assistantMessages.length > 0 ? assistantMessages[0] : "No assistant messages found";
 
-      return latestAssistantMessage; // return the latest message content
+      return latestAssistantMessage; //return the latest message content
     } else {
       return `Assistant could not generate a response: ${run.status}`;
     }
