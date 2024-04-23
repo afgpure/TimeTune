@@ -4,16 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <title>TimeTune</title>
-    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="styles.css">
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     <style>
-        
         .day-textarea {
             width: 100%;
-            height: 80px; 
+            height: 80px;
         }
 
-        
+
         .current-day {
             background-color: yellow;
         }
@@ -24,21 +23,19 @@
     <div class="container">
         <div class="sidebar">
             <button class="tab-button" onclick="openTab('chat')">Chat</button>
-            <button class="tab-button" onclick="openCalendarTab()">Calendar</button>
+            <button class="tab-button" onclick="openTab('calendar')">Calendar</button>
         </div>
         <div class="content">
             <div id="chat" class="tab-content">
                 <h2>Chat with AI</h2>
-                <div id="chatOutput" class="chat-output"></div> 
+                <div id="chatOutput" class="chat-output"></div>
                 <div class="chat-container"> <!--input and send button -->
                     <textarea id="chatInput" class="chat-input" placeholder="Type your message here..."></textarea>
                     <button onclick="window.sendChat()" class="send-button">&#9650;</button>
                 </div>
             </div>
             <div id="calendar" class="tab-content">
-                <div id="calendarHeader"></div> 
-                <button id="prevWeek">Previous Month</button>
-                <button id="nextWeek">Next Month</button>
+                <div id="calendarHeader"></div>
                 <div id="calendarView">
                     <!-- Calendar dynamically populated here -->
                 </div>
@@ -46,128 +43,6 @@
         </div>
     </div>
     <script src="renderer.js"></script>
-    <script>
-
-function openCalendarTab() {
-    // Hide chat components
-    document.getElementById('chat').style.display = 'none';
-    // Show calendar
-    document.getElementById('calendar').style.display = 'block';
-    // populate the calendar
-    updateCalendar();
-}
-        // generate and display the calendar with text areas for each day
-        function generateCalendar() {
-            const calendarView = document.getElementById('calendarView');
-            const calendarHeader = document.getElementById('calendarHeader');
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = today.getMonth();
-            const day = today.getDate();
-            const monthNames = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
-
-            const daysInMonth = new Date(year, month + 1, 0).getDate(); // Number of days in the current month
-            const firstDayOfWeek = new Date(year, month, 1).getDay(); // Day of the week (0-6) for the first day of the month
-
-            // clear previous calendar content
-            calendarHeader.innerHTML = '';
-            calendarView.innerHTML = '';
-
-            // create and set calendar header with current month and year
-            const headerText = document.createElement('h2');
-            headerText.textContent = monthNames[month] + ' ' + year;
-            calendarHeader.appendChild(headerText);
-
-            const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const calendarTable = document.createElement('table');
-            const thead = document.createElement('thead');
-            const tbody = document.createElement('tbody');
-
-            // create table header with weekdays
-            let headerRow = document.createElement('tr');
-            weekdays.forEach(weekday => {
-                let th = document.createElement('th');
-                th.textContent = weekday;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-            calendarTable.appendChild(thead);
-
-            // create table body with calendar dates and text areas
-            for (let i = 0; i < 6; i++) {
-                let row = document.createElement('tr');
-                for (let j = 0; j < 7; j++) {
-                    let cell = document.createElement('td');
-                    if (i === 0 && j < firstDayOfWeek) {
-                        cell.textContent = ''; // leave empty if before the first day of the month
-                    } else {
-                        let date = (i * 7 + j - firstDayOfWeek + 1).toString().padStart(2, '0');
-                        if (date <= daysInMonth) {
-                            let textarea = document.createElement('textarea');
-                            textarea.classList.add('day-textarea');
-                            let paddedMonth = (month + 1).toString().padStart(2, '0');
-                            let dateString = `${year}-${paddedMonth}-${date}`;
-                            textarea.setAttribute('data-date', dateString); // add data-date attribute
-                            cell.textContent = date;
-                            if (parseInt(date, 10) === day) {
-                                cell.classList.add('current-day');
-                            }
-                            cell.appendChild(textarea);
-                        } else {
-                            cell.textContent = ''; // l empty if after the last day of the month
-                        }
-                    }
-                    row.appendChild(cell);
-                }
-                tbody.appendChild(row);
-            }
-            calendarTable.appendChild(tbody);
-            calendarView.appendChild(calendarTable);
-
-            
-            const calendarPopulate = [
-    { date: '2024-04-20', time: '5:00 PM', description: 'Haircut' },
-    { date: '2024-04-21', time: '3:00 PM', description: 'Visit family' },
-    { date: '2024-04-22', time: '7:00 PM', description: 'Work (evening shift)' },
-    { date: '2024-04-23', time: '6:00 PM', description: 'Soccer practice' },
-    { date: '2024-04-24', time: '9:00 AM', description: "Doctor's appointment" },
-    { date: '2024-04-25', time: '6:00 PM', description: 'Dinner with friends' },
-    { date: '2024-04-26', time: '8:00 PM', description: 'Movie night' },
-    { date: '2024-04-27', time: '10:00 AM', description: 'Community Service' },
-    { date: '2024-04-28', time: '11:00 AM', description: 'Brunch with family' },
-    { date: '2024-04-29', time: '3:00 PM', description: 'Dentist appointment' },
-    { date: '2024-04-30', time: '7:00 PM', description: 'Work (evening shift)' },
-    { date: '2024-05-01', time: '4:00 PM', description: 'Study group' },
-    { date: '2024-05-02', time: '5:00 PM', description: 'Yoga class' },
-    { date: '2024-05-03', time: '6:00 PM', description: 'Dinner date' }
-];
-
-            
-            populateCalendar(calendarPopulate);
-        }
-
-
-        
-        function updateCalendar() {
-            
-            generateCalendar();
-        }
-
-        
-        function populateCalendar(events) {
-            events.forEach(event => {
-                const { date, time, description } = event;
-                const textarea = document.querySelector(`textarea[data-date="${date}"]`);
-                if (textarea) {
-                    textarea.value += `${time}: ${description}\n`;
-                }
-            });
-        }
-
-        //function to generate the calendar when the page loads
-        generateCalendar();
-    </script>
 </body>
 
 </html>

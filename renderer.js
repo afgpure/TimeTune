@@ -1,6 +1,6 @@
-const { ipcRenderer } = require('electron');
 
 function openTab(tabName) {
+    console.log('Opening tab:', tabName);
     var i, tabcontent, tabbuttons;
     tabcontent = document.getElementsByClassName("tab-content");
     for (i = 0; i < tabcontent.length; i++) {
@@ -11,12 +11,29 @@ function openTab(tabName) {
         tabbuttons[i].classList.remove("active");
     }
     document.getElementById(tabName).style.display = "block";
+
+    if (tabName === 'calendar') {
+        console.log('trying electron');
+        window.electron.requestCalendarData();
+        console.log('electron was called');
+    }
 }
 
+
+
+console.log('Script start');
 // Default to open chat tab
 document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOM fully loaded and parsed');
     openTab('chat');
+    console.log('Renderer ready, setting up IPC listener for calendar-data');
+    window.electron.onCalendarData((events) => {
+        console.log('Received calendar data from main process:', events);
+        generateCalendar();
+        populateCalendar(events);
+    });
 });
+console.log('Script executed');
 
 function sendChat() {
     const inputElement = document.getElementById('chatInput');
@@ -26,7 +43,7 @@ function sendChat() {
     if (!prompt.trim()) return; // prevent sending empty prompts
 
     window.electron.sendChat(prompt).then((response) => {
-    
+
         const messageHtml = `
           <div class="message user-message">${prompt}</div>
           <div class="message gpt-response">${response}</div>
@@ -40,49 +57,88 @@ function sendChat() {
 }
 window.sendChat = sendChat;
 
-function buildCalendar() {
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
-
-    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-    const daysInMonth = lastDayOfMonth.getDate();
-    const startingDayOfWeek = firstDayOfMonth.getDay(); // Sunday is 0, Monday is 1, ..., Saturday is 6
-
-    const calendarTable = document.getElementById('calendarTable');
-    const calendarBody = calendarTable.querySelector('tbody');
-    calendarBody.innerHTML = ''; // Clear existing calendar days
-
-    let row = calendarBody.insertRow(); // Insert a new row for the first week
-    let dayCount = 1;
-
-    // insert blank cells for days before the first day of the month
-    for (let i = 0; i < startingDayOfWeek; i++) {
-        row.insertCell();
-    }
-
-    // Populate calendar days
-    for (let day = 1; day <= daysInMonth; day++) {
-        const cell = row.insertCell();
-        cell.textContent = day;
-        dayCount++;
-
-        // start a new row if it's the end of the week
-        if (dayCount > 7) {
-            row = calendarBody.insertRow();
-            dayCount = 1;
+function populateCalendar(events) {
+    console.log('Populating calendar with events:', events);  // Check data structure here
+    events.forEach(event => {
+        const { Date: date, Time: time, Description: description } = event;
+        const textarea = document.querySelector(`textarea[data-date="${date}"]`);
+        if (textarea) {
+            textarea.value += `${time}: ${description}\n`;
+        } else {
+            console.log(`No textarea found for date: ${date}`);  // This will help identify missing elements
         }
-    }
-
-    // fill in remaining empty cells in the last row
-    while (dayCount <= 7) {
-        row.insertCell();
-        dayCount++;
-    }
+    });
 }
 
 
-document.addEventListener('DOMContentLoaded', function () {
-    buildCalendar();
-});
+function generateCalendar() {
+    const calendarView = document.getElementById('calendarView');
+    const calendarHeader = document.getElementById('calendarHeader');
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const day = today.getDate();
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate(); // Number of days in the current month
+    const firstDayOfWeek = new Date(year, month, 1).getDay(); // Day of the week (0-6) for the first day of the month
+
+    // clear previous calendar content
+    calendarHeader.innerHTML = '';
+    calendarView.innerHTML = '';
+
+    // create and set calendar header with current month and year
+    const headerText = document.createElement('h2');
+    headerText.textContent = monthNames[month] + ' ' + year;
+    calendarHeader.appendChild(headerText);
+
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const calendarTable = document.createElement('table');
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+
+    // create table header with weekdays
+    let headerRow = document.createElement('tr');
+    weekdays.forEach(weekday => {
+        let th = document.createElement('th');
+        th.textContent = weekday;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    calendarTable.appendChild(thead);
+
+    // create table body with calendar dates and text areas
+    for (let i = 0; i < 6; i++) {
+        let row = document.createElement('tr');
+        for (let j = 0; j < 7; j++) {
+            let cell = document.createElement('td');
+            if (i === 0 && j < firstDayOfWeek) {
+                cell.textContent = ''; // leave empty if before the first day of the month
+            } else {
+                let date = (i * 7 + j - firstDayOfWeek + 1).toString().padStart(2, '0');
+                if (date <= daysInMonth) {
+                    let textarea = document.createElement('textarea');
+                    textarea.classList.add('day-textarea');
+                    let paddedMonth = (month + 1).toString().padStart(2, '0');
+                    let dateString = `${year}-${paddedMonth}-${date}`;
+                    textarea.setAttribute('data-date', dateString); // add data-date attribute
+                    cell.textContent = date;
+                    if (parseInt(date, 10) === day) {
+                        cell.classList.add('current-day');
+                    }
+                    cell.appendChild(textarea);
+                } else {
+                    cell.textContent = ''; // l empty if after the last day of the month
+                }
+            }
+            row.appendChild(cell);
+        }
+        tbody.appendChild(row);
+    }
+    calendarTable.appendChild(tbody);
+    calendarView.appendChild(calendarTable);
+
+
+}
+
