@@ -1,5 +1,5 @@
 
-function openTab(tabName) {
+function openTab(tabName) {//handles functionality behind each tab click
     console.log('Opening tab:', tabName);
     var i, tabcontent, tabbuttons;
     tabcontent = document.getElementsByClassName("tab-content");
@@ -22,7 +22,7 @@ function openTab(tabName) {
 
 
 console.log('Script start');
-// Default to open chat tab
+// Default to open chat tab and awaits calendar data to be sent thru the bridge
 document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM fully loaded and parsed');
     openTab('chat');
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 console.log('Script executed');
 
-function sendChat() {
+function sendChat() {//sends chat to html 
     const inputElement = document.getElementById('chatInput');
     const outputElement = document.getElementById('chatOutput');
     const prompt = inputElement.value;
@@ -57,10 +57,10 @@ function sendChat() {
 }
 window.sendChat = sendChat;
 
-function populateCalendar(events) {
+function populateCalendar(events) {//populates calendar with data from csv as a parameter
     if (!Array.isArray(events)) {
         console.error('Expected events to be an array, but received:', events);
-        return; // Exit the function if not an array
+        return; 
     }
     console.log('Populating calendar with events:', events);
     events.forEach(event => {
@@ -75,7 +75,7 @@ function populateCalendar(events) {
 }
 
 
-function generateCalendar() {
+function generateCalendar() { //generates html elements for the calendar
     const calendarView = document.getElementById('calendarView');
     const calendarHeader = document.getElementById('calendarHeader');
     const today = new Date();
@@ -118,7 +118,7 @@ function generateCalendar() {
         for (let j = 0; j < 7; j++) {
             let cell = document.createElement('td');
             if (i === 0 && j < firstDayOfWeek) {
-                cell.textContent = ''; // leave empty if before the first day of the month
+                cell.textContent = ''; 
             } else {
                 let date = (i * 7 + j - firstDayOfWeek + 1).toString().padStart(2, '0');
                 if (date <= daysInMonth) {
@@ -126,14 +126,14 @@ function generateCalendar() {
                     textarea.classList.add('day-textarea');
                     let paddedMonth = (month + 1).toString().padStart(2, '0');
                     let dateString = `${year}-${paddedMonth}-${date}`;
-                    textarea.setAttribute('data-date', dateString); // add data-date attribute
+                    textarea.setAttribute('data-date', dateString); 
                     cell.textContent = date;
                     if (parseInt(date, 10) === day) {
                         cell.classList.add('current-day');
                     }
                     cell.appendChild(textarea);
                 } else {
-                    cell.textContent = ''; // l empty if after the last day of the month
+                    cell.textContent = ''; 
                 }
             }
             row.appendChild(cell);

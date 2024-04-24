@@ -8,11 +8,13 @@ let win;
 let assistantId;
 let threadId;
 
+//my openai api key that uses gpt4. its free for anyone that uses my key
+//no need to worry about the price, its still cheap for me so use as much as you want
 const openai = new OpenAI({
   apiKey: 'REMOVED',
 });
 
-function createWindow() {
+function createWindow() {   //create main view
   win = new BrowserWindow({
     title: 'TimeTune',
     width: 800,
@@ -26,7 +28,7 @@ function createWindow() {
   win.loadFile('index.html')
 }
 
-async function assistantInit() {
+async function assistantInit() { //initialize gpt assistant
   try {
     const file = await openai.files.create({
       file: fs.createReadStream("mydata.csv"),
@@ -38,7 +40,7 @@ async function assistantInit() {
       instructions: "You are an assistant that manages a calendar. You can add (write to uploaded file), update (write to uploaded file), and delete (write to uploaded file) appointments in " +
         "the uploaded csv file based on user inferences and requests. The user does not know of the mydata.csv file and never will so don't acknowledge its existence." +
         "This file is solely for you so you can manage the calendar data structure which reads off of this file. Output of any content from this " +
-        "file should be shown in a casual manner mimicking natural language. When presenting data or responding, please omit hyphens, parenthesis, asterisks, and colons. The only colons allowed is for time eg. 5:30 PM." +
+        "file should be shown in a casual manner mimicking natural language. When responding back with a schedule, please omit hyphens, parenthesis, asterisks, and colons. The only colons allowed is for time eg. 5:30 PM. Make sure to humanize your output." +
         "Intelligently find and suggest the most optimal slot for an appointment if the user never gave a specific day or time. Keep track of common North America holidays so to recognize additional context.",
       model: "gpt-4-turbo",
       tools: [{ "type": "code_interpreter" }],
@@ -58,7 +60,7 @@ async function assistantInit() {
   }
 }
 
-async function fetchChatCompletion(prompt) {
+async function fetchChatCompletion(prompt) { //this fetches chat messages between the user and gpt assistant
   try {
 
     const threadMessage = await openai.beta.threads.messages.create(
@@ -113,7 +115,7 @@ ipcMain.handle('get-chat-completion', async (event, prompt) => {
 
 
 
-async function readCSVandSendData() {
+async function readCSVandSendData() {//read preloaded schedule in the csv file
   const results = [];
   try {
     await fs.createReadStream(path.join(__dirname, 'mydata.csv'))
@@ -134,7 +136,7 @@ async function readCSVandSendData() {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(() => {//start app and initialize
 
   createWindow()
   assistantInit()
@@ -148,7 +150,7 @@ app.whenReady().then(() => {
   })
 })
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', () => {//for macos the app still runs even when window is closed
   if (process.platform !== 'darwin') {
     app.quit()
   }
