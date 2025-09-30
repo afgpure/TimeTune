@@ -1,4 +1,5 @@
-# TimeTune - COMP 469 Project
+# TimeTune 
+*- COMP 469 Project*
 
 An intelligent desktop application built with Electron and Node.js that integrates OpenAI's API to manage schedules conversationally. The app reads a CSV schedule, then allows the user to interact with an AI assistant to add, update, and delete appointments.
 
