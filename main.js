@@ -11,7 +11,7 @@ let threadId;
 //my openai api key that uses gpt4. its free for anyone that uses my key
 //no need to worry about the price, its still cheap for me so use as much as you want
 const openai = new OpenAI({
-  apiKey: 'sk-proj-dBLsdUnaCRYqDtC72L6fT3BlbkFJzhZ57zDk9zOv5U2PwUxk',
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 function createWindow() {   //create main view
