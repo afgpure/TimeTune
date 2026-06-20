@@ -21,8 +21,6 @@ Natural Scheduling – AI suggests times and reschedules intelligently, accounti
 - Node.js (v18 or later)
 - OpenAI API key
 
-⚠️ Note on API Key Handling: For the purposes of this class project, the OpenAI API key is embedded directly in the source code, as requested by the professor to simplify grading and execution. The keys used have been revoked.
-
 ### Installation:
 
 Clone the repository
