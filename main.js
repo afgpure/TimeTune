@@ -3,15 +3,15 @@ const { OpenAI } = require("openai");
 const path = require('node:path');
 const fs = require('fs');
 const csv = require('csv-parser');
+require('dotenv').config();
 
 let win;
 let assistantId;
 let threadId;
 
-//my openai api key that uses gpt4. its free for anyone that uses my key
-//no need to worry about the price, its still cheap for me so use as much as you want
+
 const openai = new OpenAI({
-  apiKey: 'REMOVED',
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 function createWindow() {   //create main view
